@@ -1,0 +1,220 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Thin Sectioned Essay
+% LaTeX Template
+% Version 1.0 (3/8/13)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original Author:
+% Nicolas Diaz (nsdiaz@uc.cl) with extensive modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[a4paper, 11pt]{article} % Font size (can be 10pt, 11pt or 12pt) and paper size (remove a4paper for US letter paper)
+
+\usepackage[protrusion=true,expansion=true]{microtype} % Better typography
+\usepackage{graphicx} % Required for including pictures
+\usepackage{wrapfig} % Allows in-line images
+
+\usepackage{mathpazo} % Use the Palatino font
+\usepackage[T1]{fontenc} % Required for accented characters
+\linespread{1.05} % Change line spacing here, Palatino benefits from a slight increase by default
+
+\makeatletter
+\renewcommand\@biblabel[1]{\textbf{#1.}} % Change the square brackets for each bibliography item from '[1]' to '1.'
+\renewcommand{\@listI}{\itemsep=0pt} % Reduce the space between items in the itemize and enumerate environments and the bibliography
+
+\renewcommand{\maketitle}{ % Customize the title - do not edit title and author name here, see the TITLE block below
+	\begin{center} % Right align
+		{\LARGE\@title} % Increase the font size of the title
+		
+		\vspace{10pt} % Some vertical space between the title and author name
+		
+		{\small\@author} % Author name
+%		\\\@date % Date
+		
+	%	\vspace{40pt} % Some vertical space between the author block and abstract
+	\end{center}
+}
+
+%----------------------------------------------------------------------------------------
+%	TITLE
+%----------------------------------------------------------------------------------------
+
+\title{\textbf{SQL Injection}\\ % Title
+	} % Subtitle
+
+\author{\textbf{BimalVarghese} % Author
+	\\{\textit{}}} % Institution
+
+%\date{\today} % Date
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+	
+	\maketitle % Print the title section
+	
+	%----------------------------------------------------------------------------------------
+	%	ABSTRACT AND KEYWORDS
+	%----------------------------------------------------------------------------------------
+	
+	%\renewcommand{\abstractname}{Summary} % Uncomment to change the name of the abstract to something else
+	
+	
+	%----------------------------------------------------------------------------------------
+	%	ESSAY BODY
+	%----------------------------------------------------------------------------------------
+	
+	\section*{Introduction}
+	
+	 SQL injection is a very serious code defect that can lead to machine compromises, the disclosure of sensitive data, and even spreading of malicious software.
+	 Systems affected by the vulnerabilities are often e-commerce applications or applications handling sensitive data or personally identifiable information (PII) or line-of-business database-driven applications having SQL injection bugs.If the applications that communicate with databases has one or more SQL injection vulnerabilities, then all data in the database is at risk.An attacker does not need to assume the \textit{sysadmin} role to steal data.
+	
+	
+	In some countries, states, and industries, you may be legally liable should this occur.
+	Eg: in the state of California, the Online Privacy Protection Act could land you
+	in legal trouble if your databases are compromised and they contain private or personal
+	data. The damage from a SQL injection attack is not limited to the data in the database; an attack could lead to server, and potentially network, compromise also. For an
+	attacker, a compromised backend database is simply a stepping stone to bigger and
+	better things.
+	%------------------------------------------------
+	
+	\section*{AFFECTED LANGUAGES}
+	
+	Any programming language used to interface with a database can be affected.
+	
+	But mainly high-level languages such as Perl, Python, Ruby, Java,C\#,VB.NET \\
+	server page technologies such as ASP, ASP.NET, JSP, and PHP,  are vulnerable.\\
+	 Sometimes lower-level languages, such as C and C++ using database libraries or classes can be compromised.\\
+	  Even the SQL language itself can be sinful.
+	
+	\section *{SIN EXPLAINED}
+	
+	An attacker provides your database application with some malformed data, and your application uses that data to build a SQL statement using string concatenation. This allows the attacker to change the semantics of the SQL query.Programmer use string concatenation because they dont know
+	there is another, safer method, and string concatenation is easy but wrong.
+
+	A less common variant is SQL stored procedures that take a parameter and simply execute the argument or perform the string concatenation with the argument and then execute the result.
+	
+	\section*{Examples}
+	\subsection*{Sinful C\#}
+	\begin{verbatim}
+	using System.Data.SqlClient;
+	public static void main(String args[])
+	{
+	int id = 0;
+	string result="";
+	try {
+		Connect to database;
+		Open connection;
+		id = Get id value from user;
+		string sqlstring="SELECT custName,Age" +
+		" FROM cust WHERE id=" + Id;
+		
+		result = Execute query(sqlstring);
+		
+		Close connection;
+		
+	}
+	catch (exception e)
+	{
+	}
+	}
+	\end{verbatim}
+	
+	In these examples, the attacker completely controls the Id variable in the
+	querystring, and because he can determine exactly what the querystring is, the results are
+	potentially catastrophic.The classic attack is to simply change the SQL query by adding more clauses to the query and comment out unneeded clauses
+	
+	For example, if the attacker controls Id, he
+	could provide  \begin{verbatim} 1 or 2>1 --\end{verbatim} ,
+	 which would create a SQL query like this:
+	 
+	 SELECT ccnum FROM cust WHERE id=1 or 2>1 --
+	
+	Here 2>1 is true for all rows in the table, so the query returns all rows in the cust table.
+	The comment operator\begin{verbatim} (-- )\end{verbatim} comments out any characters added to the query by the
+	code. Some databases use \begin{verbatim} (-- )\end{verbatim} , and others use \#
+	 
+	 
+	 \subsection*{Sinful SQL}
+	 \begin{verbatim}
+	 
+	 CREATE PROCEDURE dbo.doQuery(@query nchar(128))
+	 AS
+	 exec(@query)
+	 RETURN
+	 \end{verbatim}
+	 This stored procedure simply takes a string as a parameter and executes it. Here also the attacker can modify the query to retrieve or manipulate any data
+	%------------------------------------------------
+	
+	\subsection*{Related Sins}
+	\begin{itemize}
+		\item Connecting using a high-privilege account
+		\item  Embedding a password in the code
+		\item Giving the attacker too much error information
+		\item Canonicalization issues
+	\end{itemize}
+	
+	\section*{SPOTTING THE SIN PATTERN}
+	\subsection*{DURING CODE REVIEW}
+	When reviewing code for SQL injection attacks, look for code that queries a database in
+	the first place. Scan code looking for the constructs that load the database access code. For example: in C\# search for Sql, SqlClient, OracleClient, SqlDataAdapter
+	
+	Determine where the queries are performed and determine the trustworthiness of the data
+	used in each query. It can be done by looking for all the places where SQL
+	statements are executed, and determine if string concatenation or replacement is used on
+	untrusted data
+	
+	\subsection*{TESTING TECHNIQUES}
+	In case you do not have access to the code,supplement the code review with testing.
+	
+	For that, determine all the entry points into the application used to create SQL queries.
+	Next, create a client test harness that sends partially malformed data to those end points.
+	For example, if the code is a web application and it builds a query from one or more form
+	entries, you should inject random SQL reserved symbols and words into each form entry.
+	
+	Third-party tools are also available, such as IBM Rational AppScan from IBM (was
+	Sanctum, then Watchfire), WebInspect from HP (was SPI Dynamics), and ScanDo from
+	Kavado.
+	
+	\section*{REDEMPTION STEPS}
+	\begin{itemize}
+		\item Do not use string concatenation or string replacement.Never trust input to SQL statements
+		
+		Always validate the data being used in the SQL statement as correctly formed. The simplest way is to
+		use a regular expression to parse the input, assuming you are using a relatively high-level
+		language.
+		\item Use prepared or parameterized SQL statements, also known as prepared statements.
+		
+		 Use prepared, also called parameterized, queries. Some
+		 technologies refer to them as placeholders or binding
+		 \begin{verbatim}
+		 Eg: SqlConnection sqlConn = new SqlConnection(GetConnnection);
+		 string str = "sp_GetCreditCard";
+		 cmd = new SqlCommand(str, sqlConn);
+		 cmd.CommandType = CommandType.StoredProcedure;
+		 cmd.Parameters.Add("@ID", Id);
+		 cmd.Connection.Open();
+		 SqlDataReader read = myCommand.ExecuteReader();
+		 ccnum = read.GetString(0);
+		 \end{verbatim}
+		\item  Deny access to underlying database objects such as tables, and grant access only to stored procedures and views
+	 	\item 	Encrypt the underlying data such that it cannot be disclosed in the case of a SQL injection–induced breach.
+	 	
+	 	\item Use URLScan 
+	 \end{itemize}
+
+
+	
+	
+\end{document}

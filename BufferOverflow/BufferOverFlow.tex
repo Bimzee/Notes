@@ -1,0 +1,146 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Thin Sectioned Essay
+% LaTeX Template
+% Version 1.0 (3/8/13)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original Author:
+% Nicolas Diaz (nsdiaz@uc.cl) with extensive modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[a4paper, 11pt]{article} % Font size (can be 10pt, 11pt or 12pt) and paper size (remove a4paper for US letter paper)
+
+\usepackage[protrusion=true,expansion=true]{microtype} % Better typography
+\usepackage{graphicx} % Required for including pictures
+\usepackage{wrapfig} % Allows in-line images
+\usepackage{listings}
+
+\usepackage{mathpazo} % Use the Palatino font
+\usepackage[T1]{fontenc} % Required for accented characters
+\linespread{1.05} % Change line spacing here, Palatino benefits from a slight increase by default
+
+\makeatletter
+\renewcommand\@biblabel[1]{\textbf{#1.}} % Change the square brackets for each bibliography item from '[1]' to '1.'
+\renewcommand{\@listI}{\itemsep=0pt} % Reduce the space between items in the itemize and enumerate environments and the bibliography
+
+\renewcommand{\maketitle}{ % Customize the title - do not edit title and author name here, see the TITLE block below
+\begin{center} % Right align
+{\LARGE\@title} % Increase the font size of the title
+
+\vspace{10pt} % Some vertical space between the title and author name
+
+{\large\@author} % Author name
+\\\@date % Date
+
+\vspace{10pt} % Some vertical space between the author block and abstract
+\end{center}
+}
+
+%----------------------------------------------------------------------------------------
+%	TITLE
+%----------------------------------------------------------------------------------------
+
+\title{\textbf{Buffer Overflow} Code Explanation % Title
+} % Subtitle
+
+\author{\textsc{Bimal Varghese} % Author
+\\{\textit{FISAT}}} % Institution
+
+\date{\today} % Date
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\maketitle % Print the title section
+
+
+
+%----------------------------------------------------------------------------------------
+%	ESSAY BODY
+%----------------------------------------------------------------------------------------
+
+\section*{Sample Code}
+
+\begin{lstlisting}
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+
+int main(inr argc,char* argv[])
+{
+	char buf[400]
+	
+	if (argc <2)
+	{
+		printf("Please enter command line arguments\n");
+		exit(0);
+	}
+	
+	strcpy(buf,argv[1]);
+	return 0;
+}
+
+\end{lstlisting}
+
+%------------------------------------------------
+
+\section*{Explanation}
+The \textit{strcpy()} function does not check whether or not the number of bytes being copied to the buffer is less than the size of the buffer.The \textit{strcpy()} function copies  the command line argument passed to the program directly, without checking the number of bytes. As a result,if the user give an input string of length greater than 400(a little more than 400 ), the buffer over flows and the memory address adjacent to buffer, \textbf{ebp} and \textbf{eip}, gets overwritten.
+
+\begin{verbatim}
+gcc example.c -o example
+./example 'python -c 'print "A" *412'
+\end{verbatim}
+
+	When the above program executed with given command line arguments, the \textbf{ebp} register get overflowed with 0x41, which is the hex value of '\textbf{A}'.
+
+\section*{Overflow Attack}	
+	To perform overflow attack, we need to over flow the \textbf{eip} register, because \textbf{eip} points to the next instruction. \textbf{eip} lies next to the \textbf{ebp} register, and hence is just 4 bytes away. So if we run 
+\begin{verbatim}
+gcc example.c -o example
+./example 'python -c 'print "A" *416'
+\end{verbatim}
+	the \textbf{eip} pointer gets over written.
+	
+	Now instead of giving a single string value, if we insert a code which can spawn a shell then we will have a shell where commands can be executed. For that, we have to point the eip to  a assembly code that will spawn a shell (\textit{/bin/sh}).
+	
+\begin{verbatim}
+gcc example.c -o example
+./example 'python -c 'print "A" *412 + <shell code>'
+\end{verbatim}
+
+
+	On executing the above program, a shell is spawned with the same privileges as the program. If the program is having a high privilege then attacker will have elevates access rights. If the root user have created the binary, then spawned shell give complete access to the attacker.
+%------------------------------------------------
+
+
+
+
+
+
+
+
+
+%----------------------------------------------------------------------------------------
+%	BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+
+%\bibliographystyle{unsrt}
+
+%\bibliography{sample}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
